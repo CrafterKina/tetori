@@ -19,4 +19,12 @@ describe("text parsing", () => {
             {dialog: "baz"}
         ])
     })
+
+    test("dialogが空文字列の要素は生成しない", () => {
+        expect(parse("\n")).toEqual([]);
+        expect(parse("foo\n\nbar")).toMatchObject([
+            {dialog: "foo"},
+            {dialog: "bar"}
+        ]);
+    })
 })
