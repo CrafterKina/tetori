@@ -17,5 +17,11 @@ export function TextParser(props: Props) {
 }
 
 export function parse(content: string): TetoriContent {
-    return []
+    if (content.length === 0) return [];
+    const paragraphs = content.split("\n");
+    return paragraphs.map(p => {
+        return {
+            dialog: p
+        }
+    });
 }

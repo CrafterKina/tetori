@@ -2,7 +2,7 @@ import React, {useState} from 'react';
 import {TextParser} from "./TextParser";
 
 export interface TetoriPage {
-
+    dialog: string
 }
 
 export type TetoriContent = Array<TetoriPage>
