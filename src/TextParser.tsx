@@ -6,8 +6,8 @@ type Props = {
 }
 
 export function TextParser(props: Props) {
-    const handleChange: ChangeEventHandler = (event) => {
-        const content = event.target.textContent || "";
+    const handleChange: ChangeEventHandler<HTMLTextAreaElement> = (event) => {
+        const content = event.target.value || "";
         props.setTetoriContent(parse(content));
     };
 
