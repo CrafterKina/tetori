@@ -1,4 +1,6 @@
-import {parse} from "../TextParser"
+import {parse, TextParser} from "../TextParser"
+import React from "react";
+import {fireEvent, render, screen} from "@testing-library/react";
 
 describe("text parsing", () => {
     test("空の文字列であれば空の配列を生成する", () => {
@@ -27,4 +29,17 @@ describe("text parsing", () => {
             {dialog: "bar"}
         ]);
     })
+})
+
+describe("rendering", () => {
+    test("描画でき、編集ごとに内容の更新が伝搬する", () => {
+        const mock = jest.fn();
+        render(<TextParser setTetoriContent={mock}/>);
+
+        expect(screen.getByRole("textbox")).toBeInTheDocument();
+
+        fireEvent.change(screen.getByRole("textbox"), {target: {value: "foobarbaz"}});
+
+        expect(mock.mock.calls[0][0]).toMatchObject([{dialog: "foobarbaz"}]);
+    });
 })
