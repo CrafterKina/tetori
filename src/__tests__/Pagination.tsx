@@ -15,30 +15,36 @@ describe("Pagination機能はArray要素を移動する機能を持つ", () => {
         expect(prev).toBeInTheDocument();
         expect(next).toBeInTheDocument();
 
-        fireEvent.click(next);
+        // 初期化コールが走る
         expect(handlePageChange).toHaveBeenCalledTimes(1);
-        expect(handlePageChange).toHaveBeenLastCalledWith(1);
+        expect(handlePageChange).toHaveBeenLastCalledWith(0);
 
         fireEvent.click(next);
         expect(handlePageChange).toHaveBeenCalledTimes(2);
+        expect(handlePageChange).toHaveBeenLastCalledWith(1);
+
+        fireEvent.click(next);
+        expect(handlePageChange).toHaveBeenCalledTimes(3);
         expect(handlePageChange).toHaveBeenLastCalledWith(2);
 
         // 終端に到達している
         fireEvent.click(next);
-        expect(handlePageChange).toHaveBeenCalledTimes(2); // 呼ばれていない
+        expect(handlePageChange).toHaveBeenCalledTimes(3); // 呼ばれていない
         expect(handlePageChange).toHaveBeenLastCalledWith(2);
 
         fireEvent.click(prev);
-        expect(handlePageChange).toHaveBeenCalledTimes(3);
+        expect(handlePageChange).toHaveBeenCalledTimes(4);
         expect(handlePageChange).toHaveBeenLastCalledWith(1);
 
         fireEvent.click(prev);
-        expect(handlePageChange).toHaveBeenCalledTimes(4);
+        expect(handlePageChange).toHaveBeenCalledTimes(5);
         expect(handlePageChange).toHaveBeenLastCalledWith(0);
 
         // 0に到達している
         fireEvent.click(prev);
-        expect(handlePageChange).toHaveBeenCalledTimes(4); // 呼ばれていない
+        expect(handlePageChange).toHaveBeenCalledTimes(5); // 呼ばれていない
         expect(handlePageChange).toHaveBeenLastCalledWith(0);
     })
+
+    test.todo("要素数が変化した際にページを終端や始点に合わせる")
 })
