@@ -1,4 +1,3 @@
-import {DialogBox} from "./DialogBox";
 import React, {useState} from "react";
 import {Pagination} from "./Pagination";
 
@@ -16,7 +15,7 @@ export function Tetori(props: Props) {
     const [currentPage, setPage] = useState(props.contents[0]);
 
     return (<div>
-        {currentPage ? <DialogBox content={currentPage.dialog}/> : ""}
+        {currentPage ? <p>{currentPage.dialog}</p> : ""}
         <Pagination paginateObjects={props.contents} handlePageChange={setPage}/>
     </div>)
 }
