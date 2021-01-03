@@ -1,27 +1,16 @@
 import React, {useState} from 'react';
 import {TextParser} from "./TextParser";
-import {DialogBox} from "./DialogBox";
-
-export interface TetoriPage {
-    dialog: string
-}
-
-export type TetoriContent = Array<TetoriPage>
-
-type State = {
-    content: TetoriContent,
-    pageIndex: number
-}
+import {Tetori, TetoriContent} from "./Tetori";
 
 function App() {
-    const [state, setState] = useState<State>({content: [], pageIndex: 0});
+    const [content, setContent] = useState<TetoriContent>([]);
 
     return (
         <div className="App">
             <TextParser setTetoriContent={(content) => {
-                setState(Object.assign({}, state, {content: content}))
+                setContent(Object.assign({}, content, {content: content}))
             }}/>
-            {state.content[state.pageIndex] ? <DialogBox content={state.content[state.pageIndex].dialog}/> : ""}
+            <Tetori contents={content}/>
         </div>
     );
 }

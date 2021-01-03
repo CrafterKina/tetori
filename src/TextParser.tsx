@@ -1,5 +1,5 @@
 import React, {ChangeEventHandler} from "react";
-import {TetoriContent} from "./App";
+import {TetoriContent} from "./Tetori";
 
 type Props = {
     setTetoriContent(tetoriContent: TetoriContent): void;
