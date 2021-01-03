@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {Reducer, useEffect, useReducer} from "react";
 
 type Props<T> = {
     paginateObjects: ArrayLike<T>
@@ -7,21 +7,26 @@ type Props<T> = {
 }
 
 export function Pagination<T>(props: Props<T>) {
-    const [pos, updatePos] = useState(props.initialPosition || 0);
     const {paginateObjects, handlePageChange} = props;
+    const [pos, dispatchPosMessage] = useReducer<Reducer<number, { type: string }>>((state, action) => {
+            switch (action.type) {
+                case "next":
+                    return paginateObjects[state + 1] !== undefined ? state + 1 : state;
+                case "previous":
+                    return paginateObjects[state - 1] !== undefined ? state - 1 : state;
+                default:
+                    throw new Error();
+            }
+        },
+        props.initialPosition || 0);
+
     useEffect(() => {
-        handlePageChange(paginateObjects[pos]);
+        const newPage = paginateObjects[pos] !== undefined ? paginateObjects[pos] : paginateObjects[paginateObjects.length - 1];
+        handlePageChange(newPage);
     }, [pos, paginateObjects, handlePageChange]);
 
     return (<nav>
-        <button title={"Previous"} onClick={() => movePos(pos - 1)}>{"<"}</button>
-        <button title={"Next"} onClick={() => movePos(pos + 1)}>{">"}</button>
+        <button title={"Previous"} onClick={() => dispatchPosMessage({type: "previous"})}>{"<"}</button>
+        <button title={"Next"} onClick={() => dispatchPosMessage({type: "next"})}>{">"}</button>
     </nav>)
-
-    function movePos(pos: number) {
-        const p = props.paginateObjects[pos];
-        if (p !== undefined) { // element can be falsy
-            updatePos(pos);
-        }
-    }
 }
