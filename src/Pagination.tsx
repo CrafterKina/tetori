@@ -14,6 +14,8 @@ export function Pagination<T>(props: Props<T>) {
                     return paginateObjects[state + 1] !== undefined ? state + 1 : state;
                 case "previous":
                     return paginateObjects[state - 1] !== undefined ? state - 1 : state;
+                case "clamp":
+                    return Math.max(0, Math.min(paginateObjects.length - 1, state));
                 default:
                     throw new Error();
             }
@@ -21,8 +23,11 @@ export function Pagination<T>(props: Props<T>) {
         props.initialPosition || 0);
 
     useEffect(() => {
-        const newPage = paginateObjects[pos] !== undefined ? paginateObjects[pos] : paginateObjects[paginateObjects.length - 1];
-        handlePageChange(newPage);
+        if (paginateObjects.length !== 0 && paginateObjects[pos] === undefined) dispatchPosMessage({type: "clamp"})
+    }, [pos, paginateObjects]);
+
+    useEffect(() => {
+        handlePageChange(paginateObjects[pos]);
     }, [pos, paginateObjects, handlePageChange]);
 
     return (<nav>
