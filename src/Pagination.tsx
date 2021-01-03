@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 
 type Props<T> = {
     paginateObjects: ArrayLike<T>
@@ -8,6 +8,11 @@ type Props<T> = {
 
 export function Pagination<T>(props: Props<T>) {
     const [pos, updatePos] = useState(props.initialPosition || 0);
+    const {paginateObjects, handlePageChange} = props;
+    useEffect(() => {
+        handlePageChange(paginateObjects[pos]);
+    }, [pos, paginateObjects, handlePageChange]);
+
     return (<nav>
         <button title={"Previous"} onClick={() => movePos(pos - 1)}>{"<"}</button>
         <button title={"Next"} onClick={() => movePos(pos + 1)}>{">"}</button>
@@ -16,7 +21,6 @@ export function Pagination<T>(props: Props<T>) {
     function movePos(pos: number) {
         const p = props.paginateObjects[pos];
         if (p !== undefined) { // element can be falsy
-            props.handlePageChange(p);
             updatePos(pos);
         }
     }
