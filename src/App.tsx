@@ -8,7 +8,7 @@ function App() {
     return (
         <div className="App">
             <TextParser setTetoriContent={(content) => {
-                setContent(Object.assign({}, content, {content: content}))
+                setContent(content)
             }}/>
             <Tetori contents={content}/>
         </div>
