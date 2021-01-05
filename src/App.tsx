@@ -1,15 +1,13 @@
 import React, {useState} from 'react';
-import {TextParser} from "./TextParser";
 import {Tetori, TetoriContent} from "./Tetori";
+import {SourceSwitcher} from "./SourceSwitcher";
 
 function App() {
     const [content, setContent] = useState<TetoriContent>([]);
 
     return (
         <div className="App">
-            <TextParser setTetoriContent={(content) => {
-                setContent(content)
-            }}/>
+            <SourceSwitcher setTetoriContent={setContent}/>
             <Tetori contents={content}/>
         </div>
     );
