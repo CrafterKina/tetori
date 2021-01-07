@@ -13,8 +13,8 @@ export function NavigableDialog(props: Props) {
 
     return (<div>
         <p title={"Previous"}
-           onClick={() => dispatchPosMessage({type: "previous"})}>{content[pos - 1] !== undefined ? content[pos - 1].dialog : "NA"}</p>
-        <p>{content[pos] !== undefined ? content[pos].dialog : "NA"}</p>
+           onClick={() => dispatchPosMessage({type: "previous"})}>{content[pos - 1]?.dialog ?? "NA"}</p>
+        <p>{content[pos]?.dialog ?? "NA"}</p>
         <button title={"Next"} onClick={() => dispatchPosMessage({type: "next"})}>{"↓"}</button>
     </div>)
 }
