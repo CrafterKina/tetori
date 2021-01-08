@@ -26,16 +26,33 @@ function DraggableBox(props: { note: Note }) {
     const [, drag] = useDrag<NotePacket, unknown, unknown>({
         item: {x: note.x, y: note.y, id: note.key, type: ItemTypes.BOX}
     })
-    return <div ref={drag}
-                style={{
-                    position: "absolute",
-                    left: note.x,
-                    top: note.y,
-                    width: note.w,
-                    height: note.h,
-                    resize: "both",
-                    backgroundColor: "rebeccapurple"
-                }}/>
+    return (<div style={{
+        position: "absolute",
+        left: note.x,
+        top: note.y,
+        border: '1px dashed gray',
+        padding: '0.5rem 1rem',
+        marginBottom: '.5rem',
+        backgroundColor: 'white',
+        width: 'max-content',
+    }}>
+        <div ref={drag} style={{
+            backgroundColor: 'green',
+            width: '1rem',
+            height: '1rem',
+            display: 'inline-block',
+            marginRight: '0.75rem',
+            cursor: 'move',
+        }}/>
+        <div contentEditable={true}
+             style={{
+                 overflow: "auto",
+                 width: note.w,
+                 height: note.h,
+                 resize: "both",
+                 backgroundColor: "rebeccapurple"
+             }}/>
+    </div>)
 }
 
 type MoveMessage = { type: "move", id: string, left: number, top: number }
