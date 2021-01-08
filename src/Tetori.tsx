@@ -1,5 +1,8 @@
 import React, {Reducer, useReducer} from "react";
 import {NavigableDialog} from "./NavigableDialog";
+import {InformationPaneEditor} from "./InformationPane";
+import {DndProvider} from "react-dnd";
+import {HTML5Backend} from "react-dnd-html5-backend";
 
 export interface TetoriPage {
     dialog: string
@@ -28,6 +31,9 @@ export function Tetori(props: Props) {
         0);
 
     return (<div>
+        <DndProvider backend={HTML5Backend}>
+            <InformationPaneEditor/>
+        </DndProvider>
         <NavigableDialog content={props.contents} pos={clamp(pos, 0, props.contents.length - 1)}
                          dispatchPosMessage={dispatchPosMessage}/>
     </div>)
