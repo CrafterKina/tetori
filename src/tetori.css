@@ -1,0 +1,25 @@
+.draggable-wrapper {
+    position: absolute;
+}
+
+.edit .draggable-wrapper {
+    border: 1px dashed gray;
+    padding: 0.5rem 1rem;
+    margin-bottom: 0.5rem;
+    background-color: white;
+    width: max-content;
+}
+
+.edit .drag-handle {
+    background-color: rebeccapurple;
+    width: 2ex;
+    height: 2ex;
+    margin-bottom: 1ch;
+    cursor: move;
+}
+
+.resizable {
+    display: block;
+    overflow: auto;
+    resize: both;
+}

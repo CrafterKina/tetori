@@ -3,6 +3,7 @@ import {NavigableDialog} from "./NavigableDialog";
 import {InformationPaneEditor} from "./InformationPane";
 import {DndProvider} from "react-dnd";
 import {HTML5Backend} from "react-dnd-html5-backend";
+import "./tetori.css"
 
 export interface TetoriPage {
     dialog: string

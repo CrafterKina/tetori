@@ -8,7 +8,7 @@ type Note = {
 }
 
 type NotePacket = {
-    type: "box"
+    type: typeof ItemTypes[keyof typeof ItemTypes]
     id: string,
     y: number, x: number
 }
@@ -17,41 +17,26 @@ type NoteMap = {
     [key: string]: Note
 }
 
-const ItemTypes: { BOX: "box" } = {
-    BOX: "box"
-}
+const ItemTypes = {
+    TEXT: "text"
+} as const
 
 function DraggableBox(props: { note: Note }) {
     const {note} = props;
     const [, drag] = useDrag<NotePacket, unknown, unknown>({
-        item: {x: note.x, y: note.y, id: note.key, type: ItemTypes.BOX}
+        item: {x: note.x, y: note.y, id: note.key, type: ItemTypes.TEXT}
     })
-    return (<div style={{
-        position: "absolute",
+    return (<div className={"draggable-wrapper"} style={{
         left: note.x,
         top: note.y,
-        border: '1px dashed gray',
-        padding: '0.5rem 1rem',
-        marginBottom: '.5rem',
-        backgroundColor: 'white',
-        width: 'max-content',
     }}>
-        <div ref={drag} style={{
-            backgroundColor: 'green',
-            width: '1rem',
-            height: '1rem',
-            display: 'inline-block',
-            marginRight: '0.75rem',
-            cursor: 'move',
-        }}/>
-        <div contentEditable={true}
-             style={{
-                 overflow: "auto",
-                 width: note.w,
-                 height: note.h,
-                 resize: "both",
-                 backgroundColor: "rebeccapurple"
-             }}/>
+        <div ref={drag} className={"drag-handle"}/>
+        <textarea
+            className={"resizable"}
+            style={{
+                width: note.w,
+                height: note.h,
+            }}/>
     </div>)
 }
 
@@ -59,7 +44,7 @@ type MoveMessage = { type: "move", id: string, left: number, top: number }
 
 function InformationPane(props: { notes: Note[], dispatch: Dispatch<MoveMessage> }) {
     const [, drop] = useDrop({
-        accept: [ItemTypes.BOX],
+        accept: [ItemTypes.TEXT],
         drop(item: NotePacket, monitor) {
             const {id, x, y} = item;
             const {x: dx, y: dy} = monitor.getDifferenceFromInitialOffset() || {x: 0, y: 0};
@@ -70,9 +55,10 @@ function InformationPane(props: { notes: Note[], dispatch: Dispatch<MoveMessage>
         }
     })
 
-    return (<div ref={drop} style={{width: "1024px", height: "1024px", position: "relative"}}>
-        {props.notes.map(n => <DraggableBox key={n.key} note={n}/>)}
-    </div>)
+    return (
+        <div className={"edit resizable"} ref={drop} style={{width: "1280px", height: "720px", position: "relative"}}>
+            {props.notes.map(n => <DraggableBox key={n.key} note={n}/>)}
+        </div>)
 }
 
 type CreateMessage = { type: "create" }
