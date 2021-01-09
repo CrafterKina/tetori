@@ -1,5 +1,6 @@
-import React, {Dispatch, Reducer, useReducer} from "react";
+import React, {useCallback} from "react";
 import {useDrag, useDrop} from "react-dnd";
+import {TetoriPage} from "./Tetori";
 
 type Note = {
     key: string,
@@ -13,7 +14,7 @@ type NotePacket = {
     y: number, x: number
 }
 
-type NoteMap = {
+export type NoteMap = {
     [key: string]: Note
 }
 
@@ -40,9 +41,7 @@ function DraggableBox(props: { note: Note }) {
     </div>)
 }
 
-type MoveMessage = { type: "move", id: string, left: number, top: number }
-
-function InformationPane(props: { notes: Note[], dispatch: Dispatch<MoveMessage> }) {
+function InformationPane(props: { notes: Note[], moveNote(id: string, left: number, top: number): void }) {
     const [, drop] = useDrop({
         accept: [ItemTypes.TEXT],
         drop(item: NotePacket, monitor) {
@@ -50,7 +49,7 @@ function InformationPane(props: { notes: Note[], dispatch: Dispatch<MoveMessage>
             const {x: dx, y: dy} = monitor.getDifferenceFromInitialOffset() || {x: 0, y: 0};
             const left = Math.round(x + dx);
             const top = Math.round(y + dy);
-            props.dispatch({type: "move", id, left, top});
+            props.moveNote(id, left, top);
             return undefined;
         }
     })
@@ -61,11 +60,9 @@ function InformationPane(props: { notes: Note[], dispatch: Dispatch<MoveMessage>
         </div>)
 }
 
-type CreateMessage = { type: "create" }
-
-function NotePalette(props: { dispatch: Dispatch<CreateMessage> }) {
+function NotePalette(props: { createNote(): void }) {
     return (<ul>
-        <li onClick={() => props.dispatch({type: "create"})}>{"textbox"}</li>
+        <li onClick={props.createNote}>{"textbox"}</li>
     </ul>)
 }
 
@@ -87,25 +84,25 @@ function generateUUID(): string {
     return chars.join("");
 }
 
-export function InformationPaneEditor() {
-    const [notes, dispatchNotesMessage] = useReducer<Reducer<NoteMap,
-        MoveMessage | CreateMessage>>(
-        (state, action) => {
-            switch (action.type) {
-                case "create":
-                    const addition: NoteMap = {}
-                    const key = generateUUID();
-                    addition[key] = {x: 0, y: 0, h: 300, w: 300, key}
-                    return Object.assign({}, state, addition);
-                case "move":
-                    const replace: NoteMap = {};
-                    replace[action.id] = Object.assign({}, state[action.id], {x: action.left, y: action.top});
-                    return Object.assign({}, state, replace);
-            }
-        }, {});
+export function InformationPaneEditor(props: { updatePage(message: string, partial: Partial<TetoriPage>): void, pane: NoteMap }) {
+    const {pane, updatePage} = props;
+
+    const createNote = useCallback(() => {
+        const addition: NoteMap = {}
+        const key = generateUUID();
+        addition[key] = {x: 0, y: 0, h: 300, w: 300, key}
+        updatePage("Noteを追加", {pane: Object.assign({}, pane, addition)})
+    }, [pane, updatePage]);
+
+    const moveNote = useCallback((id: string, left: number, top: number) => {
+        const replace: NoteMap = {};
+        replace[id] = Object.assign({}, pane[id], {x: left, y: top});
+        updatePage("Noteを移動", {pane: Object.assign({}, pane, replace)});
+    }, [pane, updatePage]);
+
 
     return (<div>
-        <InformationPane notes={Object.values(notes)} dispatch={dispatchNotesMessage}/>
-        <NotePalette dispatch={dispatchNotesMessage}/>
+        <InformationPane notes={Object.values(props.pane)} moveNote={moveNote}/>
+        <NotePalette createNote={createNote}/>
     </div>)
 }

@@ -20,7 +20,7 @@ function App() {
     return (
         <div className="App">
             <SourceSwitcher dispatchEditMessage={dispatchMessage}/>
-            <Tetori contents={state.history[state.stepNumber].snapshot}/>
+            <Tetori contents={state.history[state.stepNumber].snapshot} dispatchEditMessage={dispatchMessage}/>
         </div>
     );
 }
