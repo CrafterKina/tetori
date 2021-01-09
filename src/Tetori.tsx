@@ -9,10 +9,10 @@ export interface TetoriPage {
     dialog: string
 }
 
-export type TetoriContent = Array<TetoriPage>
+export type TetoriContents = Array<TetoriPage>
 
 type Props = {
-    contents: TetoriContent
+    contents: TetoriContents
 }
 
 export type PosAction = { type: "next" } | { type: "previous" } | { type: "clamp" }
@@ -35,7 +35,7 @@ export function Tetori(props: Props) {
         <DndProvider backend={HTML5Backend}>
             <InformationPaneEditor/>
         </DndProvider>
-        <NavigableDialog content={props.contents} pos={clamp(pos, 0, props.contents.length - 1)}
+        <NavigableDialog contents={props.contents} pos={clamp(pos, 0, props.contents.length - 1)}
                          dispatchPosMessage={dispatchPosMessage}/>
     </div>)
 }

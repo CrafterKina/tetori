@@ -1,8 +1,9 @@
-import {TetoriContent} from "./Tetori";
-import React, {Reducer, useEffect, useReducer} from "react";
+import {TetoriContents} from "./Tetori";
+import React, {Dispatch, Reducer, useEffect, useReducer} from "react";
+import {EditMessage} from "./App";
 
-export function PlainTextParser(props: { setTetoriContent(contents: TetoriContent): void }) {
-    const {setTetoriContent} = props
+export function PlainTextParser(props: { dispatchEditMessage: Dispatch<EditMessage> }) {
+    const {dispatchEditMessage} = props
     const [state, dispatch] = useReducer<Reducer<PlainTextParsing,
         { type: "text", text: string } |
         { type: "blanks", num: number | false } |
@@ -24,8 +25,8 @@ export function PlainTextParser(props: { setTetoriContent(contents: TetoriConten
         }, {text: "", blanks: 1, lines: false, allowEmpty: true});
 
     useEffect(() => {
-        setTetoriContent(parsePlainText(state));
-    }, [setTetoriContent, state])
+        dispatchEditMessage({type: "edit", snapshot: parsePlainText(state), message: "プレーンテキストからの読み込み"});
+    }, [dispatchEditMessage, state])
 
     return (
         <div>
@@ -78,6 +79,6 @@ export function splitPlainText(paramsObj: PlainTextParsing): string[] {
     return allowEmpty ? paragraphs : paragraphs.filter(e => e.length !== 0);
 }
 
-function parsePlainText(paramsObj: PlainTextParsing): TetoriContent {
+function parsePlainText(paramsObj: PlainTextParsing): TetoriContents {
     return splitPlainText(paramsObj).map(e => ({dialog: e}));
 }

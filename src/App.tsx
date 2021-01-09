@@ -1,14 +1,26 @@
-import React, {useState} from 'react';
-import {Tetori, TetoriContent} from "./Tetori";
+import React, {Reducer, useReducer} from 'react';
+import {Tetori, TetoriContents} from "./Tetori";
 import {SourceSwitcher} from "./SourceSwitcher";
 
+type Step = { message: string, snapshot: TetoriContents };
+type History = { stepNumber: number, history: Array<Step> }
+
+export type EditMessage = { type: "edit", snapshot: TetoriContents, message: string };
+
 function App() {
-    const [content, setContent] = useState<TetoriContent>([]);
+    const [state, dispatchMessage] = useReducer<Reducer<History, EditMessage>>((state, action) => {
+        switch (action.type) {
+            case "edit": {
+                const {message, snapshot} = action;
+                return {stepNumber: state.history.length, history: state.history.concat({message, snapshot})};
+            }
+        }
+    }, {stepNumber: 0, history: [{message: "新規", snapshot: []}]});
 
     return (
         <div className="App">
-            <SourceSwitcher setTetoriContent={setContent}/>
-            <Tetori contents={content}/>
+            <SourceSwitcher dispatchEditMessage={dispatchMessage}/>
+            <Tetori contents={state.history[state.stepNumber].snapshot}/>
         </div>
     );
 }
