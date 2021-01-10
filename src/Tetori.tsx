@@ -1,4 +1,4 @@
-import React, {Dispatch, Reducer, useCallback, useReducer} from "react";
+import React, {Dispatch, Reducer, useCallback, useReducer, useState} from "react";
 import {NavigableDialog} from "./NavigableDialog";
 import {InformationPaneEditor, NoteMap} from "./InformationPane";
 import {DndProvider} from "react-dnd";
@@ -7,11 +7,12 @@ import "./tetori.css"
 import {EditMessage} from "./App";
 
 export interface TetoriPage {
-    pane: NoteMap
+    pane?: number
     dialog: string
 }
 
 export type TetoriContents = Array<TetoriPage>
+type TetoriPanes = Array<NoteMap>
 
 type Props = {
     dispatchEditMessage: Dispatch<EditMessage>
@@ -35,6 +36,8 @@ export function Tetori(props: Props) {
         },
         0);
 
+    const [panes, setPanes] = useState<TetoriPanes>([{}]);
+
     const update = useCallback((message: string, partial: Partial<TetoriPage>) => {
         const page = Object.assign({}, contents[pos], partial);
         const snapshot = contents.slice();
@@ -42,9 +45,15 @@ export function Tetori(props: Props) {
         dispatchEditMessage({type: "edit", message, snapshot});
     }, [contents, dispatchEditMessage, pos]);
 
+    const editPane = useCallback((newPane: NoteMap) => {
+        setPanes(panes.concat(newPane));
+        update("Paneの編集", {pane: panes.length})
+    }, [panes, update]);
+
     return (<div>
         <DndProvider backend={HTML5Backend}>
-            <InformationPaneEditor pane={contents[pos]?.pane ?? {}} updatePage={update}/>
+            <InformationPaneEditor pane={panes[contents[pos]?.pane ?? panes.length - 1]}
+                                   editPane={editPane}/>
         </DndProvider>
         <NavigableDialog contents={contents.map(c => c.dialog)} pos={clamp(pos, 0, contents.length - 1)}
                          dispatchPosMessage={dispatchPosMessage}/>

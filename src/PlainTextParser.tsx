@@ -93,5 +93,5 @@ export function splitPlainText(paramsObj: PlainTextParsing): string[] {
 }
 
 function parsePlainText(paramsObj: PlainTextParsing): TetoriContents {
-    return splitPlainText(paramsObj).map(e => ({dialog: e, pane: {}}));
+    return splitPlainText(paramsObj).map(e => ({dialog: e}));
 }

@@ -1,6 +1,5 @@
 import React, {useCallback} from "react";
 import {useDrag, useDrop} from "react-dnd";
-import {TetoriPage} from "./Tetori";
 
 type Note = {
     key: string,
@@ -84,21 +83,21 @@ function generateUUID(): string {
     return chars.join("");
 }
 
-export function InformationPaneEditor(props: { updatePage(message: string, partial: Partial<TetoriPage>): void, pane: NoteMap }) {
-    const {pane, updatePage} = props;
+export function InformationPaneEditor(props: { editPane(pane: NoteMap): void, pane: NoteMap }) {
+    const {pane, editPane} = props;
 
     const createNote = useCallback(() => {
         const addition: NoteMap = {}
         const key = generateUUID();
         addition[key] = {x: 0, y: 0, h: 300, w: 300, key}
-        updatePage("Noteを追加", {pane: Object.assign({}, pane, addition)})
-    }, [pane, updatePage]);
+        editPane(Object.assign({}, pane, addition))
+    }, [editPane, pane]);
 
     const moveNote = useCallback((id: string, left: number, top: number) => {
         const replace: NoteMap = {};
         replace[id] = Object.assign({}, pane[id], {x: left, y: top});
-        updatePage("Noteを移動", {pane: Object.assign({}, pane, replace)});
-    }, [pane, updatePage]);
+        editPane(Object.assign({}, pane, replace))
+    }, [editPane, pane]);
 
 
     return (<div>
