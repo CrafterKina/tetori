@@ -79,17 +79,25 @@ export function PlainTextParser(props: { onChange(params: { message: string, edi
 
 export function splitPlainText(paramsObj: PlainTextParsing): string[] {
     const {text, blanks, lines, allowEmpty} = paramsObj;
-    const bulk = blanks ? text.split(RegExp("\n{" + (blanks + 1) + ",}")) : [text];
-    const paragraphs: string[] = [];
-    if (lines) {
-        for (let string of bulk) {
-            const l = string.split("\n");
-            for (let i = 0; i < l.length; i += lines) {
-                paragraphs.push(l.slice(i, i + lines).join("\n"));
-            }
+
+    function blanksToSplit(text: string, num: number): string[] {
+        return text.split(RegExp("\n{" + (num + 1) + ",}"));
+    }
+
+    function linesToSplit(text: string, num: number): string[] {
+        const ret = [];
+        const lines = text.split("\n");
+        for (let i = 0; i < lines.length; i += num) {
+            ret.push(lines.slice(i, i + num).join("\n"));
         }
-    } else return allowEmpty ? bulk : bulk.filter(e => e.length !== 0);
-    return allowEmpty ? paragraphs : paragraphs.filter(e => e.length !== 0);
+        return ret;
+    }
+
+    let chunk = [text];
+    if (blanks !== false && blanks > 0) chunk = chunk.flatMap(s => blanksToSplit(s, blanks));
+    if (lines !== false && lines > 0) chunk = chunk.flatMap(s => linesToSplit(s, lines));
+    if (!allowEmpty) chunk = chunk.filter(e => e.length !== 0);
+    return chunk;
 }
 
 function parsePlainText(paramsObj: PlainTextParsing): TetoriContents {
