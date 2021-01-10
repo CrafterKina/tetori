@@ -12,9 +12,9 @@ export function NavigableDialog(props: Props) {
     const {contents, pos, dispatchPosMessage} = props;
 
     return (<div>
-        <p title={"Previous"}
+        <p className={"dialog previous-dialog"} title={"Previous"}
            onClick={() => dispatchPosMessage({type: "previous"})}>{contents[pos - 1]?.dialog ?? "NA"}</p>
-        <p>{contents[pos]?.dialog ?? "NA"}</p>
-        <button title={"Next"} onClick={() => dispatchPosMessage({type: "next"})}>{"↓"}</button>
+        <p className={"dialog next-dialog"} title={"Next"}
+           onClick={() => dispatchPosMessage({type: "next"})}>{contents[pos]?.dialog ?? "NA"}</p>
     </div>)
 }

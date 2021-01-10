@@ -23,3 +23,50 @@
     overflow: auto;
     resize: both;
 }
+
+.dialog {
+    white-space: pre-wrap;
+    resize: vertical;
+}
+
+.dialog.next-dialog {
+    font-size: 1.2rem;
+    font-weight: 500;
+    line-height: 1.7em;
+
+    box-sizing: content-box;
+    min-height: 5.1em; /* 3lh *//* content-boxにして、不必要に小さくなってしまうのを防ぐ */
+
+    overflow-y: auto;
+
+    border: 2px solid palevioletred;
+    background-color: #fffbfa;
+    color: darkslategray;
+    border-radius: 1ex;
+
+    margin: 1em;
+    padding: 0.2em 0.5em;
+}
+
+.dialog.next-dialog::after {
+    content: "▼";
+
+    font-size: 0.75em;
+
+    color: hotpink;
+    text-shadow: 1px 0 1px white;
+
+    margin-left: 1ex;
+}
+
+.dialog.previous-dialog {
+    font-size: 0.9rem;
+    line-height: 1.2em;
+
+    box-sizing: content-box;
+    height: 6em;
+
+    border: 1px solid gray;
+
+    overflow-y: scroll;
+}
