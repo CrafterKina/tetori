@@ -46,7 +46,7 @@ export function Tetori(props: Props) {
         <DndProvider backend={HTML5Backend}>
             <InformationPaneEditor pane={contents[pos]?.pane ?? {}} updatePage={update}/>
         </DndProvider>
-        <NavigableDialog contents={contents} pos={clamp(pos, 0, contents.length - 1)}
+        <NavigableDialog contents={contents.map(c => c.dialog)} pos={clamp(pos, 0, contents.length - 1)}
                          dispatchPosMessage={dispatchPosMessage}/>
     </div>)
 }
