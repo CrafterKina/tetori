@@ -1,16 +1,22 @@
 import {TetoriContents} from "./Tetori";
 import React, {useState} from "react";
 
-type PlainTextParsing = { text: string, blanks: number | false, lines: number | false, allowEmpty: boolean };
+type PlainTextParsing = { text: string, blanks: number, lines: number, allowEmpty: boolean, allowEmptyLine: boolean };
 
 export function PlainTextParser(props: { onChange(params: { message: string, edit(): TetoriContents }): void }) {
     const {onChange} = props
-    const [state, setState] = useState<PlainTextParsing>({text: "", blanks: 1, lines: false, allowEmpty: false});
+    const [state, setState] = useState<PlainTextParsing>({
+        text: "",
+        blanks: 1,
+        lines: 0,
+        allowEmpty: false,
+        allowEmptyLine: false
+    });
 
     const update = (value: Partial<PlainTextParsing>) => setState(prevState => {
         const state = Object.assign({}, prevState, value);
         onChange({
-            message: `プレーンテキストから読み込み 空行数: ${state.blanks}, 行数: ${state.lines}, 空要素許容: ${state.allowEmpty}, テキスト: ${state.text.slice(0, 20)}`,
+            message: `プレーンテキストから読み込み 空行数: ${state.blanks}, 行数: ${state.lines}, 空要素許容: ${state.allowEmpty}, 空行許容: ${state.allowEmptyLine}, テキスト: ${state.text.slice(0, 20)}`,
             edit(): TetoriContents {
                 return parsePlainText(state);
             }
@@ -45,6 +51,14 @@ export function PlainTextParser(props: { onChange(params: { message: string, edi
                            }}/>
                     {"空の要素を許容する"}
                 </label>
+                <label>
+                    <input type={"checkbox"}
+                           checked={state.allowEmptyLine}
+                           onChange={(e) => {
+                               update({allowEmptyLine: e.target.checked});
+                           }}/>
+                    {"空行を許容する"}
+                </label>
             </div>
             <textarea value={state.text}
                       onChange={(e) => {
@@ -55,7 +69,7 @@ export function PlainTextParser(props: { onChange(params: { message: string, edi
 }
 
 export function splitPlainText(paramsObj: PlainTextParsing): string[] {
-    const {text, blanks, lines, allowEmpty} = paramsObj;
+    const {text, blanks, lines, allowEmpty, allowEmptyLine} = paramsObj;
 
     function blanksToSplit(text: string, num: number): string[] {
         return text.split(RegExp("\n{" + (num + 1) + ",}"));
@@ -71,9 +85,10 @@ export function splitPlainText(paramsObj: PlainTextParsing): string[] {
     }
 
     let chunk = [text];
-    if (blanks !== false && blanks > 0) chunk = chunk.flatMap(s => blanksToSplit(s, blanks));
-    if (lines !== false && lines > 0) chunk = chunk.flatMap(s => linesToSplit(s, lines));
+    if (blanks > 0) chunk = chunk.flatMap(s => blanksToSplit(s, blanks));
+    if (lines > 0) chunk = chunk.flatMap(s => linesToSplit(s, lines));
     if (!allowEmpty) chunk = chunk.filter(e => e.length !== 0);
+    if (!allowEmptyLine) chunk = chunk.map(s => s.replaceAll(/^\n|\n$/g, "").replaceAll(/\n+/g, "\n"));
     return chunk;
 }
 
