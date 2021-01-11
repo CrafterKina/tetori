@@ -50,9 +50,7 @@ export function Tetori(props: Props) {
             <DndProvider backend={HTML5Backend}>
                 {edit
                     ? <InformationPaneEditor pane={panes[pages[pos]?.pane ?? panes.length - 1]} editPane={editPane}/>
-                    :
-                    <InformationPane notes={Object.values(panes[pages[pos]?.pane ?? panes.length - 1])} remove={() => {
-                    }}/>}
+                    : <InformationPane notes={Object.values(panes[pages[pos]?.pane ?? panes.length - 1])}/>}
             </DndProvider>
             <NavigableDialog contents={pages.map(c => c.dialog)} pos={pos}
                              updatePos={reduce}/>

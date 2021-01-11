@@ -1,4 +1,5 @@
-import React, {useCallback} from "react";
+import ResizeObserver from 'rc-resize-observer';
+import React, {useCallback, useRef} from "react";
 import {useDrag, useDrop} from "react-dnd";
 
 type Note = {
@@ -19,33 +20,50 @@ const ItemTypes = {
     TEXT: "text"
 } as const
 
-function DraggableBox(props: { note: Note, index: number, remove(): void }) {
-    const {note, index} = props;
+function DraggableBox(props: { note: Note, index: number, remove(): void, sizeChange(h: number, w: number): void }) {
+    const {note, index, remove, sizeChange} = props;
     const [, drag] = useDrag<NotePacket, unknown, unknown>({
         item: {x: note.x, y: note.y, id: index, type: ItemTypes.TEXT}
     })
+
+    const timeout = useRef<ReturnType<typeof setTimeout>>();
+
     return (<div className={"draggable-wrapper"} style={{
         left: note.x,
         top: note.y,
     }}>
         <div className={"note-navigation"}>
             <div ref={drag} className={"drag-handle"} title={"ドラッグで動かす"}/>
-            <button className={"close-button"} onClick={props.remove} title={"閉じる"}/>
+            <button className={"close-button"} onClick={remove} title={"閉じる"}/>
         </div>
-        <textarea
-            className={"box"}
-            style={{
-                width: note.w,
-                height: note.h,
-                zIndex: index
-            }}/>
+        <ResizeObserver onResize={((size) => {
+            if (note.h === size.height && note.w === size.width) return;
+            if (timeout.current) clearTimeout(timeout.current);
+            timeout.current = setTimeout(() => {
+                sizeChange(size.height, size.width);
+            }, 1000);
+        })}>
+            <textarea
+                className={"box"}
+                style={{
+                    width: note.w,
+                    height: note.h,
+                    zIndex: index
+                }}/>
+        </ResizeObserver>
     </div>)
 }
 
-export function InformationPane(props: { notes: Note[], remove: (idx: number) => void }) {
+const doNothing = (() => {
+});
+
+export function InformationPane(props: { notes: Note[], remove?: (idx: number) => void, sizeChange?: (idx: number, h: number, w: number) => void }) {
+    const remove = props.remove ?? doNothing
+    const sizeChange = props.sizeChange ?? doNothing
     return (
         <div className={"pane"}>
-            {props.notes.map((n, i) => <DraggableBox index={i} key={n.key} note={n} remove={() => props.remove(i)}/>)}
+            {props.notes.map((n, i) => <DraggableBox index={i} key={n.key} note={n} remove={() => remove(i)}
+                                                     sizeChange={(h, w) => sizeChange(i, h, w)}/>)}
         </div>)
 }
 
@@ -83,9 +101,9 @@ export function InformationPaneEditor(props: { editPane(pane: NoteMap): void, pa
         editPane(pane.concat([{x: 0, y: 0, h: 300, w: 300, key: generateUUID()}]))
     }, [editPane, pane]);
 
-    const moveNote = useCallback((idx: number, left: number, top: number) => {
+    const moveNote = useCallback((idx: number, p: Partial<Omit<Note, "key">>) => {
         const replace = pane.slice();
-        const append = Object.assign({}, replace.splice(idx, 1)[0], {x: left, y: top})
+        const append = Object.assign({}, replace.splice(idx, 1)[0], p)
         editPane(replace.concat([append]))
     }, [editPane, pane]);
 
@@ -102,13 +120,13 @@ export function InformationPaneEditor(props: { editPane(pane: NoteMap): void, pa
             const {x: dx, y: dy} = monitor.getDifferenceFromInitialOffset() || {x: 0, y: 0};
             const left = Math.round(x + dx);
             const top = Math.round(y + dy);
-            moveNote(id, left, top);
+            moveNote(id, {x: left, y: top});
             return undefined;
         }
     })
 
     return (<div className={"pane-editor"} ref={drop}>
-        <InformationPane notes={pane} remove={removeNote}/>
+        <InformationPane notes={pane} remove={removeNote} sizeChange={(n, h, w) => moveNote(n, {h, w})}/>
         <NotePalette createNote={createNote}/>
     </div>)
 }

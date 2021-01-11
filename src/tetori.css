@@ -36,6 +36,11 @@
 
 .box {
     visibility: visible;
+    resize: none;
+}
+
+.edit .box {
+    resize: both;
 }
 
 .draggable-wrapper {
