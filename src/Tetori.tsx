@@ -15,6 +15,8 @@ export type Pages = Array<Page>
 export type Panes = Array<NoteMap>
 export type Snapshot = { pos: number, pages: Pages, panes: Panes }
 
+export const EmptySnapshot = (): Snapshot => ({pos: 0, pages: [], panes: [[]]})
+
 type Props = {
     dispatchEditMessage: Dispatch<EditMessage>
 } & Snapshot
@@ -30,7 +32,7 @@ export function Tetori(props: Props) {
         dispatchEditMessage({
             type: "edit",
             message,
-            snapshot: {pages: newPages, panes: pane ? panes.concat(pane) : panes, pos: p ?? pos}
+            snapshot: {pages: newPages, panes: pane ? panes.concat([pane]) : panes, pos: p ?? pos}
         });
     }, [dispatchEditMessage, pages, panes, pos]);
 

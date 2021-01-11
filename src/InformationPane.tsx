@@ -9,22 +9,20 @@ type Note = {
 
 type NotePacket = {
     type: typeof ItemTypes[keyof typeof ItemTypes]
-    id: string,
+    id: number,
     y: number, x: number
 }
 
-export type NoteMap = {
-    [key: string]: Note
-}
+export type NoteMap = Array<Note>
 
 const ItemTypes = {
     TEXT: "text"
 } as const
 
-function DraggableBox(props: { note: Note }) {
-    const {note} = props;
+function DraggableBox(props: { note: Note, index: number }) {
+    const {note, index} = props;
     const [, drag] = useDrag<NotePacket, unknown, unknown>({
-        item: {x: note.x, y: note.y, id: note.key, type: ItemTypes.TEXT}
+        item: {x: note.x, y: note.y, id: index, type: ItemTypes.TEXT}
     })
     return (<div className={"draggable-wrapper"} style={{
         left: note.x,
@@ -36,6 +34,7 @@ function DraggableBox(props: { note: Note }) {
             style={{
                 width: note.w,
                 height: note.h,
+                zIndex: index
             }}/>
     </div>)
 }
@@ -43,7 +42,7 @@ function DraggableBox(props: { note: Note }) {
 export function InformationPane(props: { notes: Note[] }) {
     return (
         <div className={"pane"}>
-            {props.notes.map(n => <DraggableBox key={n.key} note={n}/>)}
+            {props.notes.map((n, i) => <DraggableBox index={i} key={n.key} note={n}/>)}
         </div>)
 }
 
@@ -78,16 +77,13 @@ export function InformationPaneEditor(props: { editPane(pane: NoteMap): void, pa
     const {pane, editPane} = props;
 
     const createNote = useCallback(() => {
-        const addition: NoteMap = {}
-        const key = generateUUID();
-        addition[key] = {x: 0, y: 0, h: 300, w: 300, key}
-        editPane(Object.assign({}, pane, addition))
+        editPane(pane.concat([{x: 0, y: 0, h: 300, w: 300, key: generateUUID()}]))
     }, [editPane, pane]);
 
-    const moveNote = useCallback((id: string, left: number, top: number) => {
-        const replace: NoteMap = {};
-        replace[id] = Object.assign({}, pane[id], {x: left, y: top});
-        editPane(Object.assign({}, pane, replace))
+    const moveNote = useCallback((idx: number, left: number, top: number) => {
+        const replace = pane.slice();
+        const append = Object.assign({}, replace.splice(idx, 1)[0], {x: left, y: top})
+        editPane(replace.concat([append]))
     }, [editPane, pane]);
 
     const [, drop] = useDrop({
@@ -103,7 +99,7 @@ export function InformationPaneEditor(props: { editPane(pane: NoteMap): void, pa
     })
 
     return (<div className={"pane-editor"} ref={drop}>
-        <InformationPane notes={Object.values(props.pane)}/>
+        <InformationPane notes={pane}/>
         <NotePalette createNote={createNote}/>
     </div>)
 }

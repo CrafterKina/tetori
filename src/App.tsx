@@ -1,7 +1,7 @@
 import "./app.css"
 
 import React, {Reducer, useReducer} from 'react';
-import {Snapshot, Tetori} from "./Tetori";
+import {EmptySnapshot, Snapshot, Tetori} from "./Tetori";
 import {SourceSwitcher} from "./SourceSwitcher";
 import {ChangeLog} from "./ChangeLog";
 
@@ -22,7 +22,7 @@ function App() {
                 return Object.assign({}, state, {stepNumber: action.to});
             }
         }
-    }, {stepNumber: 0, history: [{message: "新規", snapshot: {pos: 0, pages: [], panes: [{}]}}]});
+    }, {stepNumber: 0, history: [{message: "新規", snapshot: EmptySnapshot()}]});
 
     return (
         <div className="App">

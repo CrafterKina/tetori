@@ -1,7 +1,7 @@
 import React, {ChangeEvent, Dispatch, useState} from "react";
 import {PlainTextParser} from "./PlainTextParser";
 import {EditMessage} from "./App";
-import {Pages} from "./Tetori";
+import {EmptySnapshot, Pages} from "./Tetori";
 
 export function SourceSwitcher(props: { dispatchEditMessage: Dispatch<EditMessage> }) {
     const {dispatchEditMessage} = props;
@@ -32,7 +32,7 @@ export function SourceSwitcher(props: { dispatchEditMessage: Dispatch<EditMessag
             if (delayed) {
                 dispatchEditMessage({
                     type: "edit",
-                    snapshot: {pages: delayed.edit(), panes: [{}], pos: 0},
+                    snapshot: Object.assign(EmptySnapshot(), {pages: delayed.edit()}),
                     message: delayed.message
                 });
             }
