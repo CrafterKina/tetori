@@ -1,9 +1,9 @@
-import {TetoriContents} from "./Tetori";
+import {Pages} from "./Tetori";
 import React, {useState} from "react";
 
 type PlainTextParsing = { text: string, blanks: number, lines: number, allowEmpty: boolean, allowEmptyLine: boolean };
 
-export function PlainTextParser(props: { onChange(params: { message: string, edit(): TetoriContents }): void }) {
+export function PlainTextParser(props: { onChange(params: { message: string, edit(): Pages }): void }) {
     const {onChange} = props
     const [state, setState] = useState<PlainTextParsing>({
         text: "",
@@ -17,7 +17,7 @@ export function PlainTextParser(props: { onChange(params: { message: string, edi
         const state = Object.assign({}, prevState, value);
         onChange({
             message: `プレーンテキストから読み込み 空行数: ${state.blanks}, 行数: ${state.lines}, 空要素許容: ${state.allowEmpty}, 空行許容: ${state.allowEmptyLine}, テキスト: ${state.text.slice(0, 20)}`,
-            edit(): TetoriContents {
+            edit(): Pages {
                 return parsePlainText(state);
             }
         })
@@ -92,6 +92,6 @@ export function splitPlainText(paramsObj: PlainTextParsing): string[] {
     return chunk;
 }
 
-function parsePlainText(paramsObj: PlainTextParsing): TetoriContents {
+function parsePlainText(paramsObj: PlainTextParsing): Pages {
     return splitPlainText(paramsObj).map(e => ({dialog: e}));
 }

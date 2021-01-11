@@ -1,20 +1,23 @@
-import React, {Dispatch} from "react";
-import {PosAction} from "./Tetori";
+import React from "react";
 
 
 type Props = {
     contents: string[]
     pos: number
-    dispatchPosMessage: Dispatch<PosAction>
+    updatePos(message: string, args: { pos: number }): void
 }
 
 export function NavigableDialog(props: Props) {
-    const {contents, pos, dispatchPosMessage} = props;
+    const {contents, pos, updatePos} = props;
 
     return (<div>
         <p className={"dialog previous-dialog"} title={"Previous"}
-           onClick={() => dispatchPosMessage({type: "previous"})}>{contents[pos - 1] ?? "NA"}</p>
+           onClick={() => {
+               if (contents[pos - 1] !== undefined) updatePos("前のページへ", {pos: pos - 1});
+           }}>{contents[pos - 1] ?? "NA"}</p>
         <p className={"dialog next-dialog"} title={"Next"}
-           onClick={() => dispatchPosMessage({type: "next"})}>{contents[pos] ?? "NA"}</p>
+           onClick={() => {
+               if (contents[pos + 1] !== undefined) updatePos("次のページへ", {pos: pos + 1});
+           }}>{contents[pos] ?? "NA"}</p>
     </div>)
 }

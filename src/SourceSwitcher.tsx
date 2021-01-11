@@ -1,12 +1,12 @@
 import React, {ChangeEvent, Dispatch, useState} from "react";
 import {PlainTextParser} from "./PlainTextParser";
 import {EditMessage} from "./App";
-import {TetoriContents} from "./Tetori";
+import {Pages} from "./Tetori";
 
 export function SourceSwitcher(props: { dispatchEditMessage: Dispatch<EditMessage> }) {
     const {dispatchEditMessage} = props;
     const [source, setSource] = useState<SourceType>("plain_text");
-    const [delayed, setDelayed] = useState<{ message: string, edit: () => TetoriContents }>();
+    const [delayed, setDelayed] = useState<{ message: string, edit: () => Pages }>();
 
     function onSourceChanged(event: ChangeEvent<HTMLInputElement>) {
         if (!isSourceType(event.target.value)) return;
@@ -30,7 +30,11 @@ export function SourceSwitcher(props: { dispatchEditMessage: Dispatch<EditMessag
         <Source type={source} onChange={setDelayed}/>
         <button onClick={() => {
             if (delayed) {
-                dispatchEditMessage({type: "edit", snapshot: delayed.edit(), message: delayed.message});
+                dispatchEditMessage({
+                    type: "edit",
+                    snapshot: {pages: delayed.edit(), panes: [{}], pos: 0},
+                    message: delayed.message
+                });
             }
         }}>{"読み込み"}</button>
     </div>)
@@ -45,7 +49,7 @@ function isSourceType(t: string): t is SourceType {
 
 type SourceProps = {
     type: SourceType,
-    onChange(params: { message: string, edit(): TetoriContents }): void
+    onChange(params: { message: string, edit(): Pages }): void
 }
 
 function Source(props: SourceProps) {
@@ -61,7 +65,7 @@ function Source(props: SourceProps) {
     }
 }
 
-function JsonTetoriDecoder(props: { onChange(params: { message: string, edit(): TetoriContents }): void }) {
+function JsonTetoriDecoder(props: { onChange(params: { message: string, edit(): Pages }): void }) {
     return (<textarea onChange={(event) => {
         try {
             props.onChange({edit: () => JSON.parse(event.target.value), message: "JSONからのロード"})
@@ -71,7 +75,7 @@ function JsonTetoriDecoder(props: { onChange(params: { message: string, edit(): 
     }}/>)
 }
 
-function HTMLTetoriDecoder(props: { onChange(params: { message: string, edit(): TetoriContents }): void }) {
+function HTMLTetoriDecoder(props: { onChange(params: { message: string, edit(): Pages }): void }) {
     const [url, setUrl] = useState("");
     return (<div>
         <input type={"text"} value={url}

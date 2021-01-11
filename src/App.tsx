@@ -1,12 +1,12 @@
 import React, {Reducer, useReducer} from 'react';
-import {Tetori, TetoriContents} from "./Tetori";
+import {Snapshot, Tetori} from "./Tetori";
 import {SourceSwitcher} from "./SourceSwitcher";
 import {ChangeLog} from "./ChangeLog";
 
-type Step = { message: string, snapshot: TetoriContents };
+type Step = { message: string, snapshot: Snapshot };
 type History = { stepNumber: number, history: Array<Step> }
 
-export type EditMessage = { type: "edit", snapshot: TetoriContents, message: string };
+export type EditMessage = { type: "edit", snapshot: Snapshot, message: string };
 export type JumpMessage = { type: "jump", to: number }
 
 function App() {
@@ -20,12 +20,12 @@ function App() {
                 return Object.assign({}, state, {stepNumber: action.to});
             }
         }
-    }, {stepNumber: 0, history: [{message: "新規", snapshot: []}]});
+    }, {stepNumber: 0, history: [{message: "新規", snapshot: {pos: 0, pages: [], panes: [{}]}}]});
 
     return (
         <div className="App">
             <SourceSwitcher dispatchEditMessage={dispatchMessage}/>
-            <Tetori contents={state.history[state.stepNumber].snapshot} dispatchEditMessage={dispatchMessage}/>
+            <Tetori dispatchEditMessage={dispatchMessage}  {...state.history[state.stepNumber].snapshot} />
             <ChangeLog dispatchJumpMessage={dispatchMessage} log={state.history.map(e => e.message)}/>
         </div>
     );
