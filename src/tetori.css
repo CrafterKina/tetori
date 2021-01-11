@@ -34,23 +34,36 @@
     cursor: pointer;
 }
 
-.draggable-wrapper {
-    position: absolute;
+.box {
+    visibility: visible;
 }
 
-.edit .draggable-wrapper {
+.draggable-wrapper {
+    position: absolute;
+
+    visibility: hidden;
+
     border: 1px dashed gray;
     padding: 0.5rem 1rem;
     margin-bottom: 0.5rem;
-    background-color: white;
+    background-color: rgba(255, 255, 255, 0.8);
     width: max-content;
 }
 
-.edit .drag-handle {
+.edit .draggable-wrapper {
+    visibility: visible;
+}
+
+.drag-handle {
+    visibility: hidden;
     background-color: rebeccapurple;
     width: 2ex;
     height: 2ex;
     margin-bottom: 1ch;
+}
+
+.edit .drag-handle {
+    visibility: visible;
     cursor: move;
 }
 

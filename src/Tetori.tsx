@@ -1,6 +1,6 @@
-import React, {Dispatch, useCallback} from "react";
+import React, {Dispatch, useCallback, useState} from "react";
 import {NavigableDialog} from "./NavigableDialog";
-import {InformationPaneEditor, NoteMap} from "./InformationPane";
+import {InformationPane, InformationPaneEditor, NoteMap} from "./InformationPane";
 import {DndProvider} from "react-dnd";
 import {HTML5Backend} from "react-dnd-html5-backend";
 import "./tetori.css"
@@ -40,12 +40,18 @@ export function Tetori(props: Props) {
         [panes.length, reduce]
     );
 
-    return (<div className={"tetori edit"}>
-        <DndProvider backend={HTML5Backend}>
-            <InformationPaneEditor pane={panes[pages[pos]?.pane ?? panes.length - 1]}
-                                   editPane={editPane}/>
-        </DndProvider>
-        <NavigableDialog contents={pages.map(c => c.dialog)} pos={pos}
-                         updatePos={reduce}/>
+    const [edit, setEdit] = useState(true);
+
+    return (<div>
+        <label><input type={"checkbox"} checked={edit} onChange={e => setEdit(e.target.checked)}/>編集モード</label>
+        <div className={`tetori ${edit ? "edit" : ""}`}>
+            <DndProvider backend={HTML5Backend}>
+                {edit
+                    ? <InformationPaneEditor pane={panes[pages[pos]?.pane ?? panes.length - 1]} editPane={editPane}/>
+                    : <InformationPane notes={Object.values(panes[pages[pos]?.pane ?? panes.length - 1])}/>}
+            </DndProvider>
+            <NavigableDialog contents={pages.map(c => c.dialog)} pos={pos}
+                             updatePos={reduce}/>
+        </div>
     </div>)
 }

@@ -32,7 +32,7 @@ function DraggableBox(props: { note: Note }) {
     }}>
         <div ref={drag} className={"drag-handle"}/>
         <textarea
-            className={"resizable"}
+            className={"box"}
             style={{
                 width: note.w,
                 height: note.h,
@@ -40,21 +40,9 @@ function DraggableBox(props: { note: Note }) {
     </div>)
 }
 
-function InformationPane(props: { notes: Note[], moveNote(id: string, left: number, top: number): void }) {
-    const [, drop] = useDrop({
-        accept: [ItemTypes.TEXT],
-        drop(item: NotePacket, monitor) {
-            const {id, x, y} = item;
-            const {x: dx, y: dy} = monitor.getDifferenceFromInitialOffset() || {x: 0, y: 0};
-            const left = Math.round(x + dx);
-            const top = Math.round(y + dy);
-            props.moveNote(id, left, top);
-            return undefined;
-        }
-    })
-
+export function InformationPane(props: { notes: Note[] }) {
     return (
-        <div className={"pane"} ref={drop}>
+        <div className={"pane"}>
             {props.notes.map(n => <DraggableBox key={n.key} note={n}/>)}
         </div>)
 }
@@ -102,9 +90,20 @@ export function InformationPaneEditor(props: { editPane(pane: NoteMap): void, pa
         editPane(Object.assign({}, pane, replace))
     }, [editPane, pane]);
 
+    const [, drop] = useDrop({
+        accept: [ItemTypes.TEXT],
+        drop(item: NotePacket, monitor) {
+            const {id, x, y} = item;
+            const {x: dx, y: dy} = monitor.getDifferenceFromInitialOffset() || {x: 0, y: 0};
+            const left = Math.round(x + dx);
+            const top = Math.round(y + dy);
+            moveNote(id, left, top);
+            return undefined;
+        }
+    })
 
-    return (<div className={"pane-editor"}>
-        <InformationPane notes={Object.values(props.pane)} moveNote={moveNote}/>
+    return (<div className={"pane-editor"} ref={drop}>
+        <InformationPane notes={Object.values(props.pane)}/>
         <NotePalette createNote={createNote}/>
     </div>)
 }
