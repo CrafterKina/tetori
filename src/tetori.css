@@ -10,6 +10,30 @@
     height: 100%;
 }
 
+.palette {
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin: 1em;
+    padding: 1em;
+    display: none;
+}
+
+.edit .palette {
+    display: initial;
+    background-color: rgba(255, 255, 255, 0.5);
+}
+
+.edit .palette:hover {
+    display: initial;
+    background-color: rgba(255, 255, 255, 0.9);
+}
+
+.palette > ul {
+    list-style: square inside;
+    cursor: pointer;
+}
+
 .draggable-wrapper {
     position: absolute;
 }

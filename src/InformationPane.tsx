@@ -60,9 +60,12 @@ function InformationPane(props: { notes: Note[], moveNote(id: string, left: numb
 }
 
 function NotePalette(props: { createNote(): void }) {
-    return (<ul>
-        <li onClick={props.createNote}>{"textbox"}</li>
-    </ul>)
+    return (<aside className={"palette"}>
+        <h1>パレット</h1>
+        <ul>
+            <li onClick={props.createNote}>{"テキスト"}</li>
+        </ul>
+    </aside>)
 }
 
 function generateUUID(): string {
