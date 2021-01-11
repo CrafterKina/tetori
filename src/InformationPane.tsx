@@ -54,7 +54,7 @@ function InformationPane(props: { notes: Note[], moveNote(id: string, left: numb
     })
 
     return (
-        <div className={"edit resizable"} ref={drop} style={{width: "1280px", height: "720px", position: "relative"}}>
+        <div className={"pane"} ref={drop}>
             {props.notes.map(n => <DraggableBox key={n.key} note={n}/>)}
         </div>)
 }
@@ -100,7 +100,7 @@ export function InformationPaneEditor(props: { editPane(pane: NoteMap): void, pa
     }, [editPane, pane]);
 
 
-    return (<div>
+    return (<div className={"pane-editor"}>
         <InformationPane notes={Object.values(props.pane)} moveNote={moveNote}/>
         <NotePalette createNote={createNote}/>
     </div>)

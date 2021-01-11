@@ -40,7 +40,7 @@ export function Tetori(props: Props) {
         [panes.length, reduce]
     );
 
-    return (<div>
+    return (<div className={"tetori edit"}>
         <DndProvider backend={HTML5Backend}>
             <InformationPaneEditor pane={panes[pages[pos]?.pane ?? panes.length - 1]}
                                    editPane={editPane}/>
