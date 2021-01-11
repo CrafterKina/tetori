@@ -1,0 +1,11 @@
+.changelog {
+    height: 20em;
+    width: 50%;
+    overflow-y: auto;
+    list-style: decimal inside;
+    border: 1px solid black;
+}
+
+.changelog li {
+    cursor: pointer;
+}

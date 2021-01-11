@@ -1,3 +1,5 @@
+import "./app.css"
+
 import React, {Reducer, useReducer} from 'react';
 import {Snapshot, Tetori} from "./Tetori";
 import {SourceSwitcher} from "./SourceSwitcher";
