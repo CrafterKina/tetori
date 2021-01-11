@@ -19,7 +19,7 @@ const ItemTypes = {
     TEXT: "text"
 } as const
 
-function DraggableBox(props: { note: Note, index: number }) {
+function DraggableBox(props: { note: Note, index: number, remove(): void }) {
     const {note, index} = props;
     const [, drag] = useDrag<NotePacket, unknown, unknown>({
         item: {x: note.x, y: note.y, id: index, type: ItemTypes.TEXT}
@@ -28,7 +28,10 @@ function DraggableBox(props: { note: Note, index: number }) {
         left: note.x,
         top: note.y,
     }}>
-        <div ref={drag} className={"drag-handle"}/>
+        <div className={"note-navigation"}>
+            <div ref={drag} className={"drag-handle"} title={"ドラッグで動かす"}/>
+            <button className={"close-button"} onClick={props.remove} title={"閉じる"}/>
+        </div>
         <textarea
             className={"box"}
             style={{
@@ -39,10 +42,10 @@ function DraggableBox(props: { note: Note, index: number }) {
     </div>)
 }
 
-export function InformationPane(props: { notes: Note[] }) {
+export function InformationPane(props: { notes: Note[], remove: (idx: number) => void }) {
     return (
         <div className={"pane"}>
-            {props.notes.map((n, i) => <DraggableBox index={i} key={n.key} note={n}/>)}
+            {props.notes.map((n, i) => <DraggableBox index={i} key={n.key} note={n} remove={() => props.remove(i)}/>)}
         </div>)
 }
 
@@ -86,6 +89,12 @@ export function InformationPaneEditor(props: { editPane(pane: NoteMap): void, pa
         editPane(replace.concat([append]))
     }, [editPane, pane]);
 
+    const removeNote = useCallback((idx: number) => {
+        const replace = pane.slice();
+        replace.splice(idx, 1);
+        editPane(replace);
+    }, [editPane, pane])
+
     const [, drop] = useDrop({
         accept: [ItemTypes.TEXT],
         drop(item: NotePacket, monitor) {
@@ -99,7 +108,7 @@ export function InformationPaneEditor(props: { editPane(pane: NoteMap): void, pa
     })
 
     return (<div className={"pane-editor"} ref={drop}>
-        <InformationPane notes={pane}/>
+        <InformationPane notes={pane} remove={removeNote}/>
         <NotePalette createNote={createNote}/>
     </div>)
 }
