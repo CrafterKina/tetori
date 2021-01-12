@@ -1,6 +1,7 @@
 import ResizeObserver from 'rc-resize-observer';
 import React, {useCallback, useRef, useState} from "react";
 import {useDrag, useDrop} from "react-dnd";
+import {ImageLoader} from "./ImageLoader";
 
 interface Note {
     type: typeof ItemTypes[keyof typeof ItemTypes],
@@ -108,52 +109,6 @@ export function InformationPane(props: { notes: Note[], remove?: (idx: number) =
 
 function NotePalette(props: { createNote(note: Omit<Note, "key">): void }) {
     const [collapse, setCollapse] = useState(false);
-    const local = useRef<HTMLInputElement | null>(null);
-    const url = useRef<HTMLInputElement | null>(null);
-
-    function loadLocalImage() {
-        const files = local.current?.files;
-        if (!files) return;
-        const file = files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.addEventListener("load", function () {
-            const result = this.result;
-            if (typeof result === "string") {
-                loadImage(result);
-            }
-        })
-        reader.readAsDataURL(file);
-    }
-
-    function loadImage(url: string) {
-        if (!url) return;
-        const image = new Image();
-        image.src = url;
-        image.onload = function () {
-            let width = image.naturalWidth;
-            let height = image.naturalHeight;
-            if (width <= height) {
-                if (500 < height) {
-                    width = 500 * width / height;
-                    height = 500;
-                }
-            } else {
-                if (500 < width) {
-                    height = 500 * height / width;
-                    width = 500;
-                }
-            }
-            props.createNote({
-                type: "image",
-                url: url,
-                x: 0,
-                y: 0,
-                h: height,
-                w: width
-            } as ImageNote)
-        }
-    }
 
     return (<aside className={"palette"}>
         <button onClick={() => setCollapse(!collapse)}>{`${collapse ? "開く" : "最小化"}`}</button>
@@ -167,17 +122,33 @@ function NotePalette(props: { createNote(note: Omit<Note, "key">): void }) {
                 w: 300,
                 h: 300
             } as TextNote)}>{"テキスト"}</li>
-            <li><label>
-                <button onClick={loadLocalImage}>{"画像"}</button>
-                <input ref={local} type={"file"} accept={"image/png,image/jpeg"}/></label>
-            </li>
-            <li><label>
-                <button onClick={() => {
-                    const value = url.current?.value;
-                    if (!value || value.length === 0) return;
-                    loadImage(value)
-                }}>{"画像"}</button>
-                <input ref={url} type={"text"} placeholder={"https://..."}/></label></li>
+            <li><ImageLoader text={"画像"} apply={(url) => {
+                const image = new Image();
+                image.src = url;
+                image.onload = function () {
+                    let width = image.naturalWidth;
+                    let height = image.naturalHeight;
+                    if (width <= height) {
+                        if (500 < height) {
+                            width = 500 * width / height;
+                            height = 500;
+                        }
+                    } else {
+                        if (500 < width) {
+                            height = 500 * height / width;
+                            width = 500;
+                        }
+                    }
+                    props.createNote({
+                        type: "image",
+                        url: url,
+                        x: 0,
+                        y: 0,
+                        h: height,
+                        w: width
+                    } as ImageNote)
+                }
+            }}/></li>
         </ul>
     </aside>)
 }

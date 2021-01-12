@@ -5,10 +5,12 @@ import {DndProvider} from "react-dnd";
 import {HTML5Backend} from "react-dnd-html5-backend";
 import "./tetori.css"
 import {EditMessage} from "./App";
+import {ImageLoader} from "./ImageLoader";
 
 export interface Page {
     pane?: number
     dialog: string
+    backgroundImage?: string
 }
 
 export type Pages = Array<Page>
@@ -46,7 +48,15 @@ export function Tetori(props: Props) {
 
     return (<div>
         <label><input type={"checkbox"} checked={edit} onChange={e => setEdit(e.target.checked)}/>編集モード</label>
-        <div className={`tetori ${edit ? "edit" : ""}`}>
+        <ImageLoader apply={(url) => {
+            reduce("背景画像を設定", {page: {backgroundImage: url}})
+        }} text={"背景画像"}/>
+        <div className={`tetori ${edit ? "edit" : ""}`} style={pages[pos]?.backgroundImage ? {
+            backgroundImage: `url(${pages[pos]?.backgroundImage})`,
+            backgroundRepeat: "no-repeat",
+            backgroundPosition: "center",
+            backgroundSize: "contain"
+        } : {}}>
             <DndProvider backend={HTML5Backend}>
                 {edit
                     ? <InformationPaneEditor pane={panes[pages[pos]?.pane ?? panes.length - 1]} editPane={editPane}/>
