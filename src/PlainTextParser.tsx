@@ -1,10 +1,11 @@
-import {Pages} from "./Tetori";
-import React, {useEffect, useState} from "react";
+import {EmptySnapshot, Pages} from "./Tetori";
+import React, {Dispatch, useState} from "react";
+import {EditMessage} from "./App";
 
 type PlainTextParsing = { text: string, blanks: number, lines: number, allowEmpty: boolean, allowEmptyLine: boolean };
 
-export function PlainTextParser(props: { onChange(params: { message: string, edit(): Pages }): void }) {
-    const {onChange} = props
+export function PlainTextParser(props: { dispatchEditMessage: Dispatch<EditMessage> }) {
+    const {dispatchEditMessage} = props
     const [state, setState] = useState<PlainTextParsing>({
         text: "",
         blanks: 1,
@@ -13,12 +14,6 @@ export function PlainTextParser(props: { onChange(params: { message: string, edi
         allowEmptyLine: false
     });
 
-    useEffect(() => onChange({
-        message: `プレーンテキストから読み込み 空行数: ${state.blanks}, 行数: ${state.lines}, 空要素許容: ${state.allowEmpty}, 空行許容: ${state.allowEmptyLine}, テキスト: ${state.text.slice(0, 20)}`,
-        edit(): Pages {
-            return parsePlainText(state);
-        }
-    }), [onChange, state])
 
     return (
         <div>
@@ -60,6 +55,11 @@ export function PlainTextParser(props: { onChange(params: { message: string, edi
                       onChange={(e) => {
                           setState(Object.assign({}, state, {text: e.target.value}));
                       }}/>
+            <button onClick={() => dispatchEditMessage({
+                type: "edit",
+                snapshot: Object.assign(EmptySnapshot(), {pages: parsePlainText(state)}),
+                message: `プレーンテキストから読み込み 空行数: ${state.blanks}, 行数: ${state.lines}, 空要素許容: ${state.allowEmpty}, 空行許容: ${state.allowEmptyLine}, テキスト: ${state.text.slice(0, 20)}`
+            })}>{"読み込み"}</button>
         </div>
     )
 }

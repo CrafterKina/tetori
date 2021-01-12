@@ -1,12 +1,10 @@
 import React, {ChangeEvent, Dispatch, useState} from "react";
 import {PlainTextParser} from "./PlainTextParser";
 import {EditMessage} from "./App";
-import {EmptySnapshot, Pages} from "./Tetori";
 
 export function SourceSwitcher(props: { dispatchEditMessage: Dispatch<EditMessage> }) {
     const {dispatchEditMessage} = props;
     const [source, setSource] = useState<SourceType>("plain_text");
-    const [delayed, setDelayed] = useState<{ message: string, edit: () => Pages }>();
 
     function onSourceChanged(event: ChangeEvent<HTMLInputElement>) {
         if (!isSourceType(event.target.value)) return;
@@ -27,16 +25,7 @@ export function SourceSwitcher(props: { dispatchEditMessage: Dispatch<EditMessag
                 <input type={"radio"} checked={source === "url"} onChange={onSourceChanged} value={"url"}/> {"WebPage"}
             </label>
         </div>
-        <Source type={source} onChange={setDelayed}/>
-        <button onClick={() => {
-            if (delayed) {
-                dispatchEditMessage({
-                    type: "edit",
-                    snapshot: Object.assign(EmptySnapshot(), {pages: delayed.edit()}),
-                    message: delayed.message
-                });
-            }
-        }}>{"読み込み"}</button>
+        <Source type={source} dispatchEditMessage={dispatchEditMessage}/>
     </div>)
 }
 
@@ -49,36 +38,27 @@ function isSourceType(t: string): t is SourceType {
 
 type SourceProps = {
     type: SourceType,
-    onChange(params: { message: string, edit(): Pages }): void
+    dispatchEditMessage: Dispatch<EditMessage>
 }
 
 function Source(props: SourceProps) {
     switch (props.type) {
         case "plain_text":
-            return (<PlainTextParser onChange={props.onChange}/>)
+            return (<PlainTextParser dispatchEditMessage={props.dispatchEditMessage}/>)
         case "json":
-            return (<JsonTetoriDecoder onChange={props.onChange}/>)
-        case "url":
-            return (<HTMLTetoriDecoder onChange={props.onChange}/>)
+            return (<JsonTetoriDecoder dispatchEditMessage={props.dispatchEditMessage}/>)
         default:
             throw new Error();
     }
 }
 
-function JsonTetoriDecoder(props: { onChange(params: { message: string, edit(): Pages }): void }) {
+function JsonTetoriDecoder(props: { dispatchEditMessage: Dispatch<EditMessage> }) {
     return (<textarea onChange={(event) => {
         try {
-            props.onChange({edit: () => JSON.parse(event.target.value), message: "JSONからのロード"})
+            props.dispatchEditMessage({type: "edit", snapshot: JSON.parse(event.target.value), message: "JSONからのロード"})
         } catch (e: unknown) {
             // todo error handling
         }
     }}/>)
 }
 
-function HTMLTetoriDecoder(props: { onChange(params: { message: string, edit(): Pages }): void }) {
-    const [url, setUrl] = useState("");
-    return (<div>
-        <input type={"text"} value={url}
-               onChange={(event) => setUrl(event.target.value)}/>
-    </div>)
-}
