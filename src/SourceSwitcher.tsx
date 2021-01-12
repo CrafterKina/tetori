@@ -13,7 +13,7 @@ export function SourceSwitcher(props: { dispatchEditMessage: Dispatch<EditMessag
     }
 
     return (<div>
-        <div>
+        <div hidden={true}>
             <label>
                 <input type={"radio"} checked={source === "plain_text"} onChange={onSourceChanged}
                        value={"plain_text"}/> {"PlainText"}
@@ -21,18 +21,15 @@ export function SourceSwitcher(props: { dispatchEditMessage: Dispatch<EditMessag
             <label>
                 <input type={"radio"} checked={source === "json"} onChange={onSourceChanged} value={"json"}/> {"JSON"}
             </label>
-            <label>
-                <input type={"radio"} checked={source === "url"} onChange={onSourceChanged} value={"url"}/> {"WebPage"}
-            </label>
         </div>
         <Source type={source} dispatchEditMessage={dispatchEditMessage}/>
     </div>)
 }
 
-type SourceType = "plain_text" | "json" | "url"
+type SourceType = "plain_text" | "json"
 
 function isSourceType(t: string): t is SourceType {
-    return t === "plain_text" || t === "json" || t === "url";
+    return t === "plain_text" || t === "json";
 
 }
 
