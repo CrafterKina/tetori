@@ -45,8 +45,8 @@ const ItemTypes = {
     IMAGE: "image"
 } as const
 
-function DraggableBox(props: { note: Note, index: number, remove(): void, sizeChange(h: number, w: number): void }) {
-    const {note, index, remove, sizeChange} = props;
+function DraggableBox(props: { note: Note, index: number, remove(): void, editNote(p: Partial<Omit<Note, "key">>): void }) {
+    const {note, index, remove, editNote} = props;
     const [, drag] = useDrag<NotePacket, unknown, unknown>({
         item: {x: note.x, y: note.y, id: index, type: ItemTypes.TEXT}
     })
@@ -56,6 +56,8 @@ function DraggableBox(props: { note: Note, index: number, remove(): void, sizeCh
     let Box;
     if (isTextNote(note)) {
         Box = () => (<textarea
+            value={note.text}
+            onChange={(e) => editNote({text: e.target.value} as TextNote)}
             className={"box"}
             style={{
                 width: note.w,
@@ -86,7 +88,7 @@ function DraggableBox(props: { note: Note, index: number, remove(): void, sizeCh
             if (note.h === size.height && note.w === size.width) return;
             if (timeout.current) clearTimeout(timeout.current);
             timeout.current = setTimeout(() => {
-                sizeChange(size.height, size.width);
+                editNote({h: size.height, w: size.width});
             }, 1000);
         })}>
             <Box/>
@@ -97,13 +99,13 @@ function DraggableBox(props: { note: Note, index: number, remove(): void, sizeCh
 const doNothing = (() => {
 });
 
-export function InformationPane(props: { notes: Note[], remove?: (idx: number) => void, sizeChange?: (idx: number, h: number, w: number) => void }) {
+export function InformationPane(props: { notes: Note[], remove?: (idx: number) => void, editNote?: (idx: number, p: Partial<Omit<Note, "key">>) => void }) {
     const remove = props.remove ?? doNothing
-    const sizeChange = props.sizeChange ?? doNothing
+    const editNote = props.editNote ?? doNothing
     return (
         <div className={"pane"}>
             {props.notes.map((n, i) => <DraggableBox index={i} key={n.key} note={n} remove={() => remove(i)}
-                                                     sizeChange={(h, w) => sizeChange(i, h, w)}/>)}
+                                                     editNote={(p) => editNote(i, p)}/>)}
         </div>)
 }
 
@@ -178,7 +180,7 @@ export function InformationPaneEditor(props: { editPane(pane: NoteMap): void, pa
         editPane(pane.concat([Object.assign({}, note, {key: generateUUID()})]))
     }, [editPane, pane]);
 
-    const moveNote = useCallback((idx: number, p: Partial<Omit<Note, "key">>) => {
+    const editNote = useCallback((idx: number, p: Partial<Omit<Note, "key">>) => {
         const replace = pane.slice();
         const append = Object.assign({}, replace.splice(idx, 1)[0], p)
         editPane(replace.concat([append]))
@@ -197,13 +199,13 @@ export function InformationPaneEditor(props: { editPane(pane: NoteMap): void, pa
             const {x: dx, y: dy} = monitor.getDifferenceFromInitialOffset() || {x: 0, y: 0};
             const left = Math.round(x + dx);
             const top = Math.round(y + dy);
-            moveNote(id, {x: left, y: top});
+            editNote(id, {x: left, y: top});
             return undefined;
         }
     })
 
     return (<div className={"pane-editor"} ref={drop}>
-        <InformationPane notes={pane} remove={removeNote} sizeChange={(n, h, w) => moveNote(n, {h, w})}/>
+        <InformationPane notes={pane} remove={removeNote} editNote={editNote}/>
         <NotePalette createNote={createNote}/>
     </div>)
 }
