@@ -81,10 +81,12 @@ export function splitPlainText(paramsObj: PlainTextParsing): string[] {
     }
 
     let chunk = [text];
+    // 空白しかない行を空行とみなすために前処理。\sだと\nが含まれてしまうため個別に指定している
+    chunk = chunk.map(s => s.replaceAll(/^[\f\r\t\v\u00a0\u1680\u180e\u2000-\u200a\u2028\u2029\u202f\u205f\u3000\ufeff]+$/gm, ""));
     if (blanks > 0) chunk = chunk.flatMap(s => blanksToSplit(s, blanks));
+    if (!allowEmptyLine) chunk = chunk.map(s => s.replaceAll(/^\n/gm, "").replaceAll(/\n$/g, ""));
     if (lines > 0) chunk = chunk.flatMap(s => linesToSplit(s, lines));
-    if (!allowEmpty) chunk = chunk.filter(e => e.length !== 0);
-    if (!allowEmptyLine) chunk = chunk.map(s => s.replaceAll(/^\n|\n$/g, "").replaceAll(/\n+/g, "\n"));
+    if (!allowEmpty) chunk = chunk.filter(e => e.length !== 0 && !/^\s*$/.test(e));
     return chunk;
 }
 

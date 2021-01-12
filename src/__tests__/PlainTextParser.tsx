@@ -48,19 +48,19 @@ describe("オプション付きのプレーンテキストのパーズ", () => {
 
         expect(splitPlainText({
             text: "foo\n\n\nbar\n\nbaz\nqux",
-            blanks: 2,
-            lines: 0,
+            blanks: 0,
+            lines: 2,
             allowEmpty: true,
             allowEmptyLine: true,
-        })).toEqual(["foo", "bar\n\nbaz\nqux"]);
+        })).toEqual(["foo\n", "\nbar", "\nbaz", "qux"]);
 
         expect(splitPlainText({
             text: "foo\n\n\nbar\n\nbaz\nqux",
-            blanks: 3,
-            lines: 0,
+            blanks: 0,
+            lines: 3,
             allowEmpty: true,
             allowEmptyLine: true,
-        })).toEqual(["foo\n\n\nbar\n\nbaz\nqux"]);
+        })).toEqual(["foo\n\n", "bar\n\nbaz", "qux"]);
     });
 
 
