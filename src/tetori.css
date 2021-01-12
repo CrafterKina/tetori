@@ -35,8 +35,10 @@
 }
 
 .box {
+    display: block;
     visibility: visible;
     resize: none;
+    overflow: hidden;
 }
 
 .edit .box {

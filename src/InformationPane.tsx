@@ -1,11 +1,34 @@
 import ResizeObserver from 'rc-resize-observer';
-import React, {useCallback, useRef} from "react";
+import React, {useCallback, useRef, useState} from "react";
 import {useDrag, useDrop} from "react-dnd";
 
-type Note = {
+interface Note {
+    type: typeof ItemTypes[keyof typeof ItemTypes],
     key: string,
-    y: number, x: number,
-    h: number, w: number,
+    y: number,
+    x: number,
+    h?: number,
+    w?: number,
+}
+
+interface TextNote extends Note {
+    type: "text"
+    h: number,
+    w: number,
+    text: string
+}
+
+function isTextNote(note: Note): note is TextNote {
+    return note.type === "text";
+}
+
+interface ImageNote extends Note {
+    type: "image"
+    dataURL: string
+}
+
+function isImageNote(note: Note): note is ImageNote {
+    return note.type === "image";
 }
 
 type NotePacket = {
@@ -17,7 +40,8 @@ type NotePacket = {
 export type NoteMap = Array<Note>
 
 const ItemTypes = {
-    TEXT: "text"
+    TEXT: "text",
+    IMAGE: "image"
 } as const
 
 function DraggableBox(props: { note: Note, index: number, remove(): void, sizeChange(h: number, w: number): void }) {
@@ -27,6 +51,27 @@ function DraggableBox(props: { note: Note, index: number, remove(): void, sizeCh
     })
 
     const timeout = useRef<ReturnType<typeof setTimeout>>();
+
+    let Box;
+    if (isTextNote(note)) {
+        Box = () => (<textarea
+            className={"box"}
+            style={{
+                width: note.w,
+                height: note.h,
+                zIndex: index
+            }}/>)
+    } else if (isImageNote(note)) {
+        Box = () => (<div className={"box"} draggable={false} style={{
+            width: note.w,
+            height: note.h,
+            zIndex: index,
+            backgroundSize: "contain",
+            backgroundRepeat: "no-repeat",
+            backgroundImage: `url(${note.dataURL})`
+        }}>
+        </div>)
+    } else throw new Error();
 
     return (<div className={"draggable-wrapper"} style={{
         left: note.x,
@@ -43,13 +88,7 @@ function DraggableBox(props: { note: Note, index: number, remove(): void, sizeCh
                 sizeChange(size.height, size.width);
             }, 1000);
         })}>
-            <textarea
-                className={"box"}
-                style={{
-                    width: note.w,
-                    height: note.h,
-                    zIndex: index
-                }}/>
+            <Box/>
         </ResizeObserver>
     </div>)
 }
@@ -67,11 +106,66 @@ export function InformationPane(props: { notes: Note[], remove?: (idx: number) =
         </div>)
 }
 
-function NotePalette(props: { createNote(): void }) {
+function NotePalette(props: { createNote(note: Omit<Note, "key">): void }) {
+    const [collapse, setCollapse] = useState(false);
+    const local = useRef<HTMLInputElement | null>(null);
+
+    function loadLocalImage() {
+        const files = local.current?.files;
+        if (!files) return;
+        const file = files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.addEventListener("load", function () {
+            const result = this.result;
+            if (typeof result === "string") {
+                const image = new Image();
+                image.src = result;
+                image.onload = function () {
+                    let width = image.naturalWidth;
+                    let height = image.naturalHeight;
+                    if (width <= height) {
+                        if (500 < height) {
+                            width = 500 * width / height;
+                            height = 500;
+                        }
+                    } else {
+                        if (500 < width) {
+                            height = 500 * height / width;
+                            width = 500;
+                        }
+                    }
+                    props.createNote({
+                        type: "image",
+                        dataURL: result,
+                        x: 0,
+                        y: 0,
+                        h: height,
+                        w: width
+                    } as ImageNote)
+                }
+            }
+        })
+        reader.readAsDataURL(file);
+    }
+
     return (<aside className={"palette"}>
+        <button onClick={() => setCollapse(!collapse)}>{`${collapse ? "開く" : "最小化"}`}</button>
         <h1>パレット</h1>
-        <ul>
-            <li onClick={props.createNote}>{"テキスト"}</li>
+        <ul hidden={collapse}>
+            <li onClick={() => props.createNote({
+                type: "text",
+                text: "",
+                x: 0,
+                y: 0,
+                w: 300,
+                h: 300
+            } as TextNote)}>{"テキスト"}</li>
+            <li><label>
+                <button onClick={loadLocalImage}>{"画像"}</button>
+                <input ref={local} type={"file"} accept={"image/png,image/jpeg"}/></label>
+            </li>
+            <li><label>{"画像(URL)"}<input type={"text"}/></label></li>
         </ul>
     </aside>)
 }
@@ -97,8 +191,8 @@ function generateUUID(): string {
 export function InformationPaneEditor(props: { editPane(pane: NoteMap): void, pane: NoteMap }) {
     const {pane, editPane} = props;
 
-    const createNote = useCallback(() => {
-        editPane(pane.concat([{x: 0, y: 0, h: 300, w: 300, key: generateUUID()}]))
+    const createNote = useCallback((note: Partial<Note> & Omit<Note, "key">) => {
+        editPane(pane.concat([Object.assign({}, note, {key: generateUUID()})]))
     }, [editPane, pane]);
 
     const moveNote = useCallback((idx: number, p: Partial<Omit<Note, "key">>) => {
