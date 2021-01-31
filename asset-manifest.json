@@ -1,0 +1,22 @@
+{
+  "files": {
+    "main.css": "/tetori/static/css/main.b029364d.chunk.css",
+    "main.js": "/tetori/static/js/main.c811ea57.chunk.js",
+    "main.js.map": "/tetori/static/js/main.c811ea57.chunk.js.map",
+    "runtime-main.js": "/tetori/static/js/runtime-main.76a27c0d.js",
+    "runtime-main.js.map": "/tetori/static/js/runtime-main.76a27c0d.js.map",
+    "static/js/2.13ec9d36.chunk.js": "/tetori/static/js/2.13ec9d36.chunk.js",
+    "static/js/2.13ec9d36.chunk.js.map": "/tetori/static/js/2.13ec9d36.chunk.js.map",
+    "static/js/3.abd6f850.chunk.js": "/tetori/static/js/3.abd6f850.chunk.js",
+    "static/js/3.abd6f850.chunk.js.map": "/tetori/static/js/3.abd6f850.chunk.js.map",
+    "index.html": "/tetori/index.html",
+    "static/css/main.b029364d.chunk.css.map": "/tetori/static/css/main.b029364d.chunk.css.map",
+    "static/js/2.13ec9d36.chunk.js.LICENSE.txt": "/tetori/static/js/2.13ec9d36.chunk.js.LICENSE.txt"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.76a27c0d.js",
+    "static/js/2.13ec9d36.chunk.js",
+    "static/css/main.b029364d.chunk.css",
+    "static/js/main.c811ea57.chunk.js"
+  ]
+}
