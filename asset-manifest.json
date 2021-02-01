@@ -1,8 +1,8 @@
 {
   "files": {
     "main.css": "/tetori/static/css/main.b029364d.chunk.css",
-    "main.js": "/tetori/static/js/main.c811ea57.chunk.js",
-    "main.js.map": "/tetori/static/js/main.c811ea57.chunk.js.map",
+    "main.js": "/tetori/static/js/main.cc6ac003.chunk.js",
+    "main.js.map": "/tetori/static/js/main.cc6ac003.chunk.js.map",
     "runtime-main.js": "/tetori/static/js/runtime-main.76a27c0d.js",
     "runtime-main.js.map": "/tetori/static/js/runtime-main.76a27c0d.js.map",
     "static/js/2.13ec9d36.chunk.js": "/tetori/static/js/2.13ec9d36.chunk.js",
@@ -17,6 +17,6 @@
     "static/js/runtime-main.76a27c0d.js",
     "static/js/2.13ec9d36.chunk.js",
     "static/css/main.b029364d.chunk.css",
-    "static/js/main.c811ea57.chunk.js"
+    "static/js/main.cc6ac003.chunk.js"
   ]
 }
