@@ -45,36 +45,54 @@ const ItemTypes = {
     IMAGE: "image"
 } as const
 
-function DraggableBox(props: { note: Note, index: number, remove(): void, editNote(p: Partial<Omit<Note, "key">>): void }) {
+type EditNoteFunction = (p: Partial<Omit<Note, "key">>) => void
+
+type BoxType<T extends Note> = {
+    note: T,
+    editNote: EditNoteFunction,
+    index: number
+}
+
+function TextBox(props: BoxType<TextNote>) {
+    const {note, editNote, index} = props;
+    return <textarea
+        value={note.text}
+        onChange={(e) => editNote({text: e.target.value} as TextNote)}
+        className={"box"}
+        style={{
+            width: note.w,
+            height: note.h,
+            zIndex: index
+        }}/>;
+}
+
+function ImageBox(props: BoxType<ImageNote>) {
+    const {note, index} = props;
+    return <div className={"box"} draggable={false} style={{
+        width: note.w,
+        height: note.h,
+        zIndex: index,
+        backgroundSize: "contain",
+        backgroundRepeat: "no-repeat",
+        backgroundImage: `url(${note.url})`
+    }}>
+    </div>;
+}
+
+function Box(props: BoxType<Note>) {
+    const {editNote, index, note} = props;
+    if (isTextNote(note)) return (<TextBox note={note} editNote={editNote} index={index}/>)
+    if (isImageNote(note)) return (<ImageBox note={note} editNote={editNote} index={index}/>)
+    throw new Error();
+}
+
+function DraggableBox(props: { note: Note, index: number, remove(): void, editNote: EditNoteFunction }) {
     const {note, index, remove, editNote} = props;
     const [, drag] = useDrag<NotePacket, unknown, unknown>({
         item: {x: note.x, y: note.y, id: index, type: ItemTypes.TEXT}
     })
 
     const timeout = useRef<ReturnType<typeof setTimeout>>();
-
-    let Box;
-    if (isTextNote(note)) {
-        Box = () => (<textarea
-            value={note.text}
-            onChange={(e) => editNote({text: e.target.value} as TextNote)}
-            className={"box"}
-            style={{
-                width: note.w,
-                height: note.h,
-                zIndex: index
-            }}/>)
-    } else if (isImageNote(note)) {
-        Box = () => (<div className={"box"} draggable={false} style={{
-            width: note.w,
-            height: note.h,
-            zIndex: index,
-            backgroundSize: "contain",
-            backgroundRepeat: "no-repeat",
-            backgroundImage: `url(${note.url})`
-        }}>
-        </div>)
-    } else throw new Error();
 
     return (<div className={"draggable-wrapper"} style={{
         left: note.x,
@@ -91,7 +109,7 @@ function DraggableBox(props: { note: Note, index: number, remove(): void, editNo
                 editNote({h: size.height, w: size.width});
             }, 1000);
         })}>
-            <Box/>
+            <Box note={note} editNote={editNote} index={index}/>
         </ResizeObserver>
     </div>)
 }
@@ -105,7 +123,7 @@ export function InformationPane(props: { notes: Note[], remove?: (idx: number) =
     return (
         <div className={"pane"}>
             {props.notes.map((n, i) => <DraggableBox index={i} key={n.key} note={n} remove={() => remove(i)}
-                                                     editNote={(p) => editNote(i, p)}/>)}
+                                                     editNote={editNote.bind(undefined, i)}/>)}
         </div>)
 }
 
